@@ -1,0 +1,5 @@
+{
+  "name": "Neon Vector Builder",
+  "description": "A specialized tool for creating single-line (centerline) vector files from text, designed for CNC neon sign fabrication.",
+  "requestFramePermissions": []
+}
