@@ -156,30 +156,22 @@ const healPaths = (pathLists: Point[][], tolerance: number): Point[][] => {
         const headB = pathB[0];
         const tailB = pathB[pathB.length - 1];
 
-        // Check 4 combinations: TailA-HeadB, TailA-TailB, HeadA-HeadB, HeadA-TailB
-        // Standard Append: TailA -> HeadB
         if (distSq(tailA, headB) < tolSq) {
           lists[i] = pathA.concat(pathB);
           lists[j] = null as any;
           changed = true;
           break;
-        }
-        // Reverse Append: TailA -> TailB
-        else if (distSq(tailA, tailB) < tolSq) {
+        } else if (distSq(tailA, tailB) < tolSq) {
            lists[i] = pathA.concat(pathB.reverse());
            lists[j] = null as any;
            changed = true;
            break;
-        }
-        // Prepend Reverse: HeadA -> HeadB
-        else if (distSq(headA, headB) < tolSq) {
+        } else if (distSq(headA, headB) < tolSq) {
             lists[i] = pathB.reverse().concat(pathA);
             lists[j] = null as any;
             changed = true;
             break;
-        }
-        // Prepend Standard: HeadA -> TailB
-        else if (distSq(headA, tailB) < tolSq) {
+        } else if (distSq(headA, tailB) < tolSq) {
             lists[i] = pathB.concat(pathA);
             lists[j] = null as any;
             changed = true;
@@ -222,21 +214,17 @@ const perpendicularDistance = (p: Point, lineStart: Point, lineEnd: Point) => {
 };
 
 // --- CURVE FITTING (SCHNEIDER ALGORITHM) ---
-
 const fitCubic = (points: Point[], error: number): string => {
   if (points.length < 2) return "";
   const len = points.length;
-  // Compute tangents at ends
   const tHat1 = normalize(sub(points[1], points[0]));
   const tHat2 = normalize(sub(points[len - 2], points[len - 1]));
-  
   const resultCommands: string[] = [`M ${points[0].x.toFixed(2)} ${points[0].y.toFixed(2)}`];
   fitCubicRecursive(points, tHat1, tHat2, error, resultCommands);
   return resultCommands.join(" ");
 };
 
 const fitCubicRecursive = (points: Point[], tHat1: Point, tHat2: Point, error: number, commands: string[]) => {
-  const maxIterations = 4;
   if (points.length === 2) {
     const p0 = points[0];
     const p3 = points[1];
@@ -246,64 +234,40 @@ const fitCubicRecursive = (points: Point[], tHat1: Point, tHat2: Point, error: n
     commands.push(`C ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}, ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`);
     return;
   }
-
-  // Parameterize points (chord length)
   let u = [0];
   for (let i = 1; i < points.length; i++) {
     u.push(u[i - 1] + dist(points[i], points[i - 1]));
   }
   const totalLen = u[u.length - 1];
   u = u.map(v => v / totalLen);
-
-  // Fit Cubic
   let bezCurve = generateBezier(points, u, tHat1, tHat2);
-  
-  // Find Max Error
   let maxError = 0;
   let splitPoint = 0;
   for (let i = 0; i < points.length; i++) {
      const p = points[i];
      const c = evaluateBezier(bezCurve, u[i]);
      const err = distSq(p, c);
-     if (err > maxError) {
-         maxError = err;
-         splitPoint = i;
-     }
+     if (err > maxError) { maxError = err; splitPoint = i; }
   }
-
   if (maxError < error * error) {
       const p1 = bezCurve[1];
       const p2 = bezCurve[2];
       const p3 = bezCurve[3];
       commands.push(`C ${p1.x.toFixed(2)} ${p1.y.toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}, ${p3.x.toFixed(2)} ${p3.y.toFixed(2)}`);
   } else {
-      // Fitting failed, split and recurse
-      if (splitPoint === 0 || splitPoint === points.length - 1) {
-          // If split is at endpoints (shouldn't happen with correct logic), force split middle
-          splitPoint = Math.floor(points.length / 2);
-      }
-      
+      if (splitPoint === 0 || splitPoint === points.length - 1) { splitPoint = Math.floor(points.length / 2); }
       const centerTangent = normalize(sub(points[splitPoint - 1], points[splitPoint + 1]));
-      // Reverse for second segment
       const centerTangentRev = { x: -centerTangent.x, y: -centerTangent.y }; 
-
       fitCubicRecursive(points.slice(0, splitPoint + 1), tHat1, centerTangent, error, commands);
       fitCubicRecursive(points.slice(splitPoint), centerTangentRev, tHat2, error, commands);
   }
 };
 
 const generateBezier = (points: Point[], u: number[], t1: Point, t2: Point): Point[] => {
-    // Least Squares Fitting for alpha1 and alpha2
-    // C(t) = (1-t)^3 P0 + 3(1-t)^2 t P1 + 3(1-t) t^2 P2 + t^3 P3
-    // P1 = P0 + alpha1 * t1
-    // P2 = P3 + alpha2 * t2
-    // We solve for alpha1, alpha2
     const first = points[0];
     const last = points[points.length - 1];
-    
     let C = [[0, 0], [0, 0]];
     let X = [0, 0];
-
     for (let i = 0; i < points.length; i++) {
         const t = u[i];
         const t2_ = t * t;
@@ -311,49 +275,31 @@ const generateBezier = (points: Point[], u: number[], t1: Point, t2: Point): Poi
         const invT = 1 - t;
         const invT2 = invT * invT;
         const invT3 = invT2 * invT;
-
         const b0 = invT3;
         const b1 = 3 * invT2 * t;
         const b2 = 3 * invT * t2_;
         const b3 = t3;
-
         const a1 = mul(t1, b1);
         const a2 = mul(t2, b2);
-
-        // Vector from P0/P3 terms to actual point
-        // Diff = Pi - (b0*P0 + b1*P0 + b2*P3 + b3*P3) -> Simplification P1=P0+a1*t1...
-        // Simplified: Pi - (b0+b1)*P0 - (b2+b3)*P3 = alpha1 * a1 + alpha2 * a2
         const pTerm = add(mul(first, b0 + b1), mul(last, b2 + b3));
         const diff = sub(points[i], pTerm);
-
         C[0][0] += dot(a1, a1);
         C[0][1] += dot(a1, a2);
         C[1][0] += dot(a1, a2);
         C[1][1] += dot(a2, a2);
-
         X[0] += dot(diff, a1);
         X[1] += dot(diff, a2);
     }
-
-    // Solve linear system (Cramers rule or det)
     const det = C[0][0] * C[1][1] - C[1][0] * C[0][1];
     let alpha1 = 0, alpha2 = 0;
     if (Math.abs(det) > 1e-5) {
         alpha1 = (X[0] * C[1][1] - X[1] * C[0][1]) / det;
         alpha2 = (C[0][0] * X[1] - C[1][0] * X[0]) / det;
     }
-
-    // Heuristic: if alpha negative or very large, zero them or clamp
     const dist = Math.sqrt(distSq(first, last));
     if (alpha1 < 1e-5 || alpha1 > dist * 3) alpha1 = dist / 3;
     if (alpha2 < 1e-5 || alpha2 > dist * 3) alpha2 = dist / 3;
-
-    return [
-        first,
-        add(first, mul(t1, alpha1)),
-        add(last, mul(t2, alpha2)),
-        last
-    ];
+    return [first, add(first, mul(t1, alpha1)), add(last, mul(t2, alpha2)), last];
 };
 
 const evaluateBezier = (bez: Point[], t: number): Point => {
@@ -368,30 +314,59 @@ const evaluateBezier = (bez: Point[], t: number): Point => {
     };
 };
 
-// --- MAIN EXPORT ---
-
 const processPaths = (rawPaths: Point[][], smoothing: number, mergeDist: number): PathData[] => {
-    // 1. Merge / Heal
-    // Use a slightly larger tolerance for text connections if mergeDist is 0 (default behavior for script?)
-    // But respecting config:
     const healedPaths = healPaths(rawPaths, mergeDist > 0 ? mergeDist : 0.1);
-
-    // 2. Simplify & Fit Curves
-    // RDP Epsilon: 0.5 (detailed) to 5.0 (abstract)
     const rdpEpsilon = 0.5 + (smoothing / 20); 
-    // Curve Error: 1.0 to 10.0
     const curveError = 1.0 + (smoothing / 10);
-
     return healedPaths.map(pts => {
         const simplified = simplifyPathRDP(pts, rdpEpsilon);
         const bezierPath = fitCubic(simplified, curveError);
-        return {
-            points: simplified,
-            path: bezierPath
-        };
+        return { points: simplified, path: bezierPath };
     });
 };
 
+// --- WEB FONT TRACING (New) ---
+const generateCenterlineFromWebFont = async (
+    text: string, 
+    fontName: string, 
+    width: number, 
+    height: number, 
+    fontSize: number,
+    smoothingAmount: number,
+    mergeDistance: number
+): Promise<PathData[]> => {
+    // Force load the font first
+    try {
+        await document.fonts.load(`${fontSize}px "${fontName}"`);
+    } catch (e) {
+        console.warn('Font load warning:', e);
+    }
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return [];
+
+    // Draw white text on black background for contrast
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, width, height);
+    
+    ctx.fillStyle = 'white';
+    ctx.font = `${fontSize}px "${fontName}"`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, width / 2, height / 2);
+
+    // Skeletonize
+    const binary = traceImageInternal(ctx.getImageData(0, 0, width, height), width, height, 128);
+    const rawPaths = traceSkeleton(binary, width, height);
+    
+    // Process
+    return processPaths(rawPaths, smoothingAmount, mergeDistance);
+};
+
+// --- MAIN EXPORT ---
 export const generateCenterline = async (
   text: string, 
   fontName: string, 
@@ -401,28 +376,42 @@ export const generateCenterline = async (
   smoothingAmount: number = 20,
   mergeDistance: number = 0
 ): Promise<PathData[]> => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-        const font = FONTS[fontName as keyof typeof FONTS] || SCRIPT_FONT;
-        const scale = fontSize / 30; 
-        let cursorX = 50; 
-        const startY = targetHeight / 2;
-        let allPaths: Point[][] = [];
-
-        for (let i = 0; i < text.length; i++) {
-            const char = text[i];
-            if (char === ' ') { cursorX += 20 * scale; continue; }
-            const glyph = font[char] || font[char.toLowerCase()] || font['?'];
-            if (!glyph) { cursorX += 15 * scale; continue; }
-
-            const spacing = (fontName.includes('Script')) ? 2 * scale : 5 * scale;
-            const charPaths = parsePath(glyph.d, cursorX, startY, scale);
-            allPaths.push(...charPaths);
-            cursorX += glyph.w * scale + spacing;
-        }
-
-        resolve(processPaths(allPaths, smoothingAmount, mergeDistance));
-    }, 50);
+  return new Promise(async (resolve) => {
+      // Check if it is a built-in vector font
+      if (FONTS[fontName as keyof typeof FONTS]) {
+        setTimeout(() => {
+            const font = FONTS[fontName as keyof typeof FONTS];
+            const scale = fontSize / 30; 
+            let cursorX = 50; 
+            const startY = targetHeight / 2;
+            let allPaths: Point[][] = [];
+    
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                if (char === ' ') { cursorX += 20 * scale; continue; }
+                const glyph = font[char] || font[char.toLowerCase()] || font['?'];
+                if (!glyph) { cursorX += 15 * scale; continue; }
+    
+                const spacing = (fontName.includes('Script')) ? 2 * scale : 5 * scale;
+                const charPaths = parsePath(glyph.d, cursorX, startY, scale);
+                allPaths.push(...charPaths);
+                cursorX += glyph.w * scale + spacing;
+            }
+            resolve(processPaths(allPaths, smoothingAmount, mergeDistance));
+        }, 50);
+      } else {
+        // It's a web font, use tracing
+        const paths = await generateCenterlineFromWebFont(
+            text, 
+            fontName, 
+            targetWidth, 
+            targetHeight, 
+            fontSize, 
+            smoothingAmount, 
+            mergeDistance
+        );
+        resolve(paths);
+      }
   });
 };
 

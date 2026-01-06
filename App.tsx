@@ -99,19 +99,25 @@ const App: React.FC = () => {
   }, [paths, config.text, config.mode]);
 
   return (
-    <div className="flex flex-col md:flex-row h-screen w-full bg-gray-900 text-white font-sans">
-      {/* Sidebar Controls */}
-      <ControlPanel 
-        config={config} 
-        onChange={setConfig} 
-        onExport={handleExport}
-        isProcessing={isProcessing}
-      />
+    <div className="flex flex-col md:flex-row-reverse h-screen w-full bg-gray-900 text-white font-sans overflow-hidden">
+      {/* 
+        Layout Strategy:
+        Mobile: PreviewCanvas is first (Top), ControlPanel is second (Bottom).
+        Desktop: flex-row-reverse makes PreviewCanvas (Right) and ControlPanel (Left).
+      */}
       
       {/* Main Canvas Area */}
       <PreviewCanvas 
         config={config} 
         paths={paths} 
+        isProcessing={isProcessing}
+      />
+
+      {/* Sidebar Controls */}
+      <ControlPanel 
+        config={config} 
+        onChange={setConfig} 
+        onExport={handleExport}
         isProcessing={isProcessing}
       />
     </div>

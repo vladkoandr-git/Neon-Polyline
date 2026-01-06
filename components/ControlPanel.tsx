@@ -28,9 +28,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
     }
   };
 
+  // Group fonts for dropdown
+  const manualFonts = AVAILABLE_FONTS.filter(f => f.category === 'manual');
+  const webFonts = AVAILABLE_FONTS.filter(f => f.category === 'web');
+
   return (
-    <div className="w-full md:w-80 bg-gray-800 border-r border-gray-700 p-6 flex flex-col gap-6 h-auto md:h-screen overflow-y-auto">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="w-full md:w-80 bg-gray-800 border-t md:border-t-0 md:border-r border-gray-700 p-6 flex flex-col gap-6 flex-1 md:h-full overflow-y-auto">
+      <div className="flex items-center gap-2 mb-2 shrink-0">
         <div className="w-8 h-8 bg-gradient-to-tr from-blue-500 to-purple-500 rounded-lg shadow-lg shadow-blue-500/50"></div>
         <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
           NeonBuilder
@@ -38,7 +42,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       </div>
 
       {/* Mode Switcher */}
-      <div className="flex p-1 bg-gray-900 rounded-lg">
+      <div className="flex p-1 bg-gray-900 rounded-lg shrink-0">
         <button
             onClick={() => handleChange('mode', 'text')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all ${
@@ -60,7 +64,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       {config.mode === 'text' ? (
           <>
             {/* Text Input */}
-            <div className="space-y-2">
+            <div className="space-y-2 shrink-0">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
                 <Type size={16} /> Text
                 </label>
@@ -73,33 +77,46 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
                 />
             </div>
 
-            {/* Font Selection */}
-            <div className="space-y-2">
+            {/* Font Selection Dropdown */}
+            <div className="space-y-2 shrink-0">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
-                <Type size={16} /> Font (Single Line)
+                <Type size={16} /> Font Style
                 </label>
-                <div className="grid grid-cols-1 gap-2">
-                {AVAILABLE_FONTS.map((font) => (
-                    <button
-                    key={font.name}
-                    onClick={() => handleChange('fontFamily', font.name)}
-                    className={`p-2 rounded-md text-left transition-all border flex flex-col ${
-                        config.fontFamily === font.name
-                        ? 'bg-blue-600/20 border-blue-500 text-blue-400'
-                        : 'bg-gray-900 border-gray-700 text-gray-300 hover:bg-gray-700'
-                    }`}
-                    >
-                    <span className="font-medium">{font.label}</span>
-                    <span className="text-xs text-gray-500 opacity-70">CNC Optimized</span>
-                    </button>
-                ))}
+                <div className="relative">
+                  <select
+                    value={config.fontFamily}
+                    onChange={(e) => handleChange('fontFamily', e.target.value)}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-md p-3 text-white focus:outline-none appearance-none cursor-pointer hover:border-blue-500 transition-colors"
+                  >
+                    <optgroup label="⭐ Premium CNC Vectors (Highly Recommended)">
+                      {manualFonts.map((font) => (
+                        <option key={font.name} value={font.name}>
+                          {font.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🌐 Web Fonts (Auto-Traced)">
+                      {webFonts.map((font) => (
+                        <option key={font.name} value={font.name} style={{ fontFamily: font.name }}>
+                          {font.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+                  {/* Custom Arrow */}
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <Sliders size={14} />
+                  </div>
                 </div>
+                <p className="text-[10px] text-gray-500 pt-1">
+                  Premium fonts are native single-line. Web fonts are auto-traced from outlines.
+                </p>
             </div>
           </>
       ) : (
           <>
              {/* Image Upload */}
-             <div className="space-y-2">
+             <div className="space-y-2 shrink-0">
                 <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
                 <ImageIcon size={16} /> Upload Neon Image
                 </label>
@@ -138,7 +155,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       )}
 
       {/* Gap Merge Control (New) */}
-      <div className="space-y-2">
+      <div className="space-y-2 shrink-0">
         <div className="flex justify-between items-center">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
             <Zap size={16} /> Gap Fix (Merge)
@@ -158,7 +175,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       </div>
 
       {/* Smoothing Control */}
-      <div className="space-y-2">
+      <div className="space-y-2 shrink-0">
         <div className="flex justify-between items-center">
             <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
             <Activity size={16} /> Smoothness (Power)
@@ -181,7 +198,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       </div>
 
       {/* Color Picker */}
-      <div className="space-y-2">
+      <div className="space-y-2 shrink-0">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
           <Palette size={16} /> Neon Color
         </label>
@@ -201,7 +218,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       </div>
 
       {/* Background Picker */}
-      <div className="space-y-2">
+      <div className="space-y-2 shrink-0">
         <label className="flex items-center gap-2 text-sm font-medium text-gray-400">
           <LayoutTemplate size={16} /> Background
         </label>
@@ -218,7 +235,7 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ config, onChange, onExport,
       </div>
 
        {/* Actions */}
-       <div className="mt-auto pt-6 border-t border-gray-700">
+       <div className="mt-auto pt-6 border-t border-gray-700 shrink-0">
         <button
           onClick={onExport}
           disabled={isProcessing || (config.mode === 'image' && !config.image)}

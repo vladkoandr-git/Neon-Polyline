@@ -73,7 +73,45 @@ export const SCRIPT_FONT: FontSet = {
   '9': { w: 25, d: 'M 0 15 Q 4 20 12 20 Q 24 20 24 0 Q 24 -20 12 -20 Q 0 -20 0 -10 Q 0 0 12 0 Q 24 0 24 -10' }
 };
 
-// 2. MODERN SANS (Rounded)
+// 2. VINTAGE SCRIPT (Ornate, more looped)
+export const VINTAGE_SCRIPT_FONT: FontSet = {
+  ...SCRIPT_FONT,
+  'a': { w: 25, d: 'M 22 5 Q 18 0 10 0 Q 0 0 0 10 Q 0 20 10 20 Q 22 20 22 10 L 22 20 Q 22 25 28 20' },
+  'b': { w: 25, d: 'M 0 -25 L 0 18 Q 0 20 5 20 L 15 20 Q 22 20 22 10 Q 22 5 15 5 L 0 5' },
+  'f': { w: 20, d: 'M 15 -25 Q 10 -30 5 -25 Q 0 -20 10 -10 L 5 30 Q 5 45 -5 40 M 0 0 L 20 0' },
+  'h': { w: 30, d: 'M 5 -25 L 5 20 M 5 0 Q 5 -10 15 -10 Q 25 -10 25 10 L 25 20 Q 25 25 30 20' },
+  'l': { w: 15, d: 'M 10 -25 Q 0 -30 0 -10 L 0 20 Q 0 25 10 20' },
+  'r': { w: 20, d: 'M 0 20 L 0 5 Q 0 -5 5 -5 L 15 -5 Q 20 -5 20 5' },
+  's': { w: 20, d: 'M 5 20 L 20 0 Q 20 -5 10 -5 Q 0 -5 0 5 Q 0 15 20 15 Q 20 20 5 20' },
+  't': { w: 15, d: 'M 8 -15 L 8 20 Q 8 25 15 20 M 0 0 L 15 0' },
+  'y': { w: 25, d: 'M 0 0 L 0 15 Q 0 20 10 20 Q 22 20 22 10 L 22 30 Q 22 50 0 45 L -5 40' },
+  'z': { w: 20, d: 'M 5 0 Q 15 -10 20 0 Q 15 10 5 20 Q 5 25 15 25 Q 25 25 20 40 Q 15 50 0 45' },
+  'A': { w: 35, d: 'M 5 20 Q 0 0 15 -20 Q 30 0 30 20 Q 35 25 40 20 M 5 10 Q 15 5 25 10' },
+};
+
+// 3. SIGNATURE (Loose, fast)
+export const SIGNATURE_FONT: FontSet = {
+  ...SCRIPT_FONT,
+  'a': { w: 30, d: 'M 25 10 Q 20 0 10 0 Q 0 0 0 10 Q 0 20 15 20 L 25 10 L 25 20 L 35 15' },
+  'b': { w: 25, d: 'M 5 -30 L 5 20 Q 5 10 20 15 Q 25 20 15 20' },
+  'd': { w: 30, d: 'M 25 -30 L 25 20 M 25 10 Q 20 20 10 20 Q 0 20 0 10 Q 0 0 10 0 Q 20 0 25 10 L 25 20 L 35 15' },
+  'e': { w: 25, d: 'M 0 10 L 20 5 Q 20 0 10 0 Q 0 0 0 10 Q 0 20 15 20 L 30 15' },
+  'f': { w: 20, d: 'M 10 -30 L 10 40 M 0 -10 L 20 -10' },
+  'g': { w: 30, d: 'M 25 0 Q 20 10 10 10 Q 0 10 0 0 Q 0 -10 10 -10 Q 25 -10 25 0 L 25 30 Q 20 50 0 40' },
+  'h': { w: 30, d: 'M 0 -30 L 0 20 M 0 0 Q 10 -10 20 -5 L 20 20 L 30 15' },
+  'i': { w: 15, d: 'M 5 0 L 5 20 L 15 15 M 5 -15 L 10 -10' },
+  'l': { w: 15, d: 'M 5 -30 L 5 20 L 15 15' },
+  'm': { w: 45, d: 'M 0 20 L 0 0 Q 5 -10 10 0 L 10 20 M 10 0 Q 20 -10 30 0 L 30 20 M 30 0 Q 40 -10 45 0 L 45 20 L 55 15' },
+  'n': { w: 30, d: 'M 0 20 L 0 0 Q 10 -10 20 0 L 20 20 L 30 15' },
+  'p': { w: 30, d: 'M 0 40 L 0 0 Q 0 -10 15 -10 Q 25 -10 25 5 Q 25 15 10 15 L 0 15' },
+  'r': { w: 20, d: 'M 0 20 L 0 0 L 20 -5' },
+  's': { w: 20, d: 'M 20 -5 L 0 20 L 20 20' },
+  't': { w: 20, d: 'M 10 -20 L 10 20 L 20 15 M 0 -5 L 20 -5' },
+  'y': { w: 30, d: 'M 0 0 L 5 20 L 20 -5 M 5 20 L -10 40' },
+  'z': { w: 25, d: 'M 0 0 L 20 0 L 0 20 L 20 20 L 20 30' },
+};
+
+// 4. MODERN SANS (Rounded)
 export const SANS_FONT: FontSet = {
     ...SCRIPT_FONT, 
     'a': { w: 25, d: 'M 25 20 L 25 0 Q 25 -10 12 -10 Q 0 -10 0 0 Q 0 10 12 10 L 25 10 L 25 20' },
@@ -92,7 +130,7 @@ export const SANS_FONT: FontSet = {
     'y': { w: 25, d: 'M 0 0 L 10 20 L 20 0' },
 };
 
-// 3. SIMPLE SCRIPT (Less curvy, more separated)
+// 5. SIMPLE SCRIPT (Less curvy, more separated)
 export const SIMPLE_SCRIPT_FONT: FontSet = {
   ...SCRIPT_FONT,
   'a': { w: 20, d: 'M 20 10 Q 20 0 10 0 Q 0 0 0 10 Q 0 20 10 20 Q 20 20 20 10 L 20 20 L 22 20' },
@@ -107,7 +145,7 @@ export const SIMPLE_SCRIPT_FONT: FontSet = {
   'z': { w: 20, d: 'M 0 0 L 20 0 L 0 20 L 20 20' }
 };
 
-// 4. TECH MONO (Geometric, straight lines)
+// 6. TECH MONO (Geometric, straight lines)
 export const TECH_MONO_FONT: FontSet = {
   ...SANS_FONT,
   'a': { w: 20, d: 'M 0 20 L 20 20 L 20 0 L 0 0 L 0 10 L 20 10' },
@@ -123,6 +161,8 @@ export const TECH_MONO_FONT: FontSet = {
 
 export const FONTS = {
   'Neon Script': SCRIPT_FONT,
+  'Vintage Script': VINTAGE_SCRIPT_FONT,
+  'Signature': SIGNATURE_FONT,
   'Simple Script': SIMPLE_SCRIPT_FONT,
   'Modern Sans': SANS_FONT,
   'Tech Mono': TECH_MONO_FONT

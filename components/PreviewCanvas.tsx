@@ -19,8 +19,9 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ config, paths, isProcessi
         const { width, height } = containerRef.current.getBoundingClientRect();
         setDimensions({ width, height });
         // Calculate scale to fit the base processing size (800x300) into view
-        const scaleX = width / 800;
-        const scaleY = height / 400;
+        // Adjust for padding or safe areas if needed
+        const scaleX = (width - 20) / 800; // minimal padding
+        const scaleY = (height - 20) / 300;
         setScale(Math.min(scaleX, scaleY, 1.2)); // Cap zoom at 1.2
       }
     };
@@ -69,7 +70,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ config, paths, isProcessi
 
   return (
     <div 
-      className="flex-1 relative bg-black flex items-center justify-center overflow-hidden"
+      className="relative bg-black flex items-center justify-center overflow-hidden flex-shrink-0 h-[40vh] md:h-auto md:flex-1 border-b md:border-b-0 border-gray-800"
       style={getBackgroundStyle()}
       ref={containerRef}
     >
@@ -83,7 +84,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ config, paths, isProcessi
 
       {/* Main Vector Display */}
       <div 
-        className="relative transition-transform duration-300 ease-out"
+        className="relative transition-transform duration-300 ease-out shadow-2xl"
         style={{ 
           width: 800, 
           height: 300, 
@@ -92,7 +93,7 @@ const PreviewCanvas: React.FC<PreviewCanvasProps> = ({ config, paths, isProcessi
         }}
       >
         {paths.length === 0 && !isProcessing && (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-600 font-mono">
+          <div className="absolute inset-0 flex items-center justify-center text-gray-600 font-mono text-lg">
             Enter text to generate vector
           </div>
         )}
